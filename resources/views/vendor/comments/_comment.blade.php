@@ -6,15 +6,11 @@
 @else
   <li id="comment-{{ $comment->getKey() }}" class="media">
 @endif
-    <img class="mr-3" src="/images/avatars/{{ $comment->commenter->avatar }}" style="width:64px; height:64px; border-radius:50%;" alt="{{ $comment->commenter->name ?? $comment->guest_name }} Avatar">
+    <img class="mr-3" src="/images/avatars/{{ $user->avatar }}" alt="{{ $comment->commenter->name ?? $comment->guest_name }} Avatar" style="width: 75px; height: 75px;">
     <div class="media-body">
-        <h5 class="mt-0 mb-1"><a href="https://sitename.com/user/{{ $comment->commenter->name }}">{{ $comment->commenter->name ?? $comment->guest_name }} </a><small class="text-muted">- {!! pretty_date($comment->created_at) !!}</small>&nbsp;&nbsp;&nbsp;&nbsp;<i class="fas fa-link" style="color: white;"></i></h5>
+        <h5 class="mt-0 mb-1">{{ $comment->commenter->name ?? $comment->guest_name }} <small class="text-muted">- {{ $comment->created_at->diffForHumans() }}</small></h5>
         <div style="white-space: pre-wrap;">{!! $markdown->line($comment->comment) !!}</div>
-    @if($comment->created_at == $comment->updated_at)
 
-    @else
-    <span class="text-muted"><small><small>(Edited >> {!! pretty_date($comment->updated_at) !!})</span></small></small>
-    @endif
         <div>
             @can('reply-to-comment', $comment)
                 <button data-toggle="modal" data-target="#reply-modal-{{ $comment->getKey() }}" class="btn btn-sm btn-link text-uppercase">Reply</button>
@@ -23,8 +19,9 @@
                 <button data-toggle="modal" data-target="#comment-modal-{{ $comment->getKey() }}" class="btn btn-sm btn-link text-uppercase">Edit</button>
             @endcan
             @can('delete-comment', $comment)
-            <button data-toggle="modal" data-target="#delete-modal-{{ $comment->getKey() }}" class="btn btn-sm btn-link text-danger text-uppercase">Delete</button>
-            @endcan
+            <button data-toggle="modal" data-target="#delete-modal-{{ $comment->getKey() }}" class="btn btn-sm btn-link text-uppercase text-danger">Delete</button>
+                </form>
+            @endif
         </div>
 
         @can('edit-comment', $comment)
@@ -44,7 +41,7 @@
                                 <div class="form-group">
                                     <label for="message">Update your message here:</label>
                                     <textarea required class="form-control" name="message" rows="3">{{ $comment->comment }}</textarea>
-                                    <small class="form-text text-muted"><a target="_blank" href="https://help.github.com/articles/basic-writing-and-formatting-syntax">Markdown cheatsheet.</a></small>
+                                    <small class="form-text text-muted"><a target="_blank" href="https://help.github.com/articles/basic-writing-and-formatting-syntax">Markdown</a> cheatsheet.</small>
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -73,7 +70,7 @@
                                 <div class="form-group">
                                     <label for="message">Enter your message here:</label>
                                     <textarea required class="form-control" name="message" rows="3"></textarea>
-                                    <small class="form-text text-muted"><a target="_blank" href="https://help.github.com/articles/basic-writing-and-formatting-syntax">Markdown cheatsheet.</a></small>
+                                    <small class="form-text text-muted"><a target="_blank" href="https://help.github.com/articles/basic-writing-and-formatting-syntax">Markdown</a> cheatsheet.</small>
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -84,32 +81,33 @@
                     </div>
                 </div>
             </div>
-        @endcan 
+        @endcan
 
-        @can('delete-comment', $comment)
-            <div class="modal fade" id="delete-modal-{{ $comment->getKey() }}" tabindex="-1" role="dialog">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
+        @can('reply-to-comment', $comment)
+        <div class="modal fade" id="delete-modal-{{ $comment->getKey() }}" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form method="POST" action="{{ route('comments.reply', $comment->getKey()) }}">
                         <div class="modal-header">
-                            <h5 class="modal-title">Delete Comment</h5>
+                            <h5 class="modal-title">Delete comment</h5>
                             <button type="button" class="close" data-dismiss="modal">
-                                <span>&times;</span>
-                                </button>
-                                    </div>
-                            <div class="modal-body">
-                                <div class="form-group">Are you sure you want to delete this comment?</div></div>
-                                <div class="alert alert-warning">Comments can be restored. Deleting a comment does not delete the comment record.</div>
-                    <a href="{{ route('comments.destroy', $comment->getKey()) }}" onclick="event.preventDefault();document.getElementById('comment-delete-form-{{ $comment->getKey() }}').submit();" class="btn btn-danger text-uppercase">Delete</a>
+                            <span>&times;</span>
+                            </button>
+                        </div>
+                        <br>
+                        <div class="alert">Are you sure you want to delete this comment?</div>
+                        <div class="alert alert-warning">Comments can be restored. Deleting a comment does not delete the comment record.</div>
+                        <a href="{{ route('comments.destroy', $comment->getKey()) }}" onclick="event.preventDefault();document.getElementById('comment-delete-form-{{ $comment->getKey() }}').submit();" class="btn btn-danger btn-block text-uppercase">Delete</a>
                         <form id="comment-delete-form-{{ $comment->getKey() }}" action="{{ route('comments.destroy', $comment->getKey()) }}" method="POST" style="display: none;">
                             @method('DELETE')
                             @csrf
-                        </form>
-                    </div>
+                    </form>
                 </div>
             </div>
-        @endcan 
+        </div>
+    @endcan
 
-        <br /><br />{{-- Margin bottom --}}
+        <br />{{-- Margin bottom --}}
 
         {{-- Recursion for children --}}
         @if($grouped_comments->has($comment->getKey()))

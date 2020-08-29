@@ -2,6 +2,7 @@
 
 namespace Laravelista\Comments;
 
+use Auth;
 use Laravelista\Comments\Comment;
 
 class CommentPolicy
@@ -26,7 +27,12 @@ class CommentPolicy
      */
     public function delete($user, Comment $comment) : bool
     {
-        return $user->getKey() == $comment->commenter_id;
+            if(auth::user()->isstaff) {
+                return true;
+            }
+            else {
+                return false;
+            }
     }
 
     /**
@@ -50,7 +56,7 @@ class CommentPolicy
      */
     public function reply($user, Comment $comment) : bool
     {
-        return $user->getKey() != $comment->commenter_id;
+        return $user->getKey();
     }
 }
 
