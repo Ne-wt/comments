@@ -1,5 +1,5 @@
 {
-    "name": "newt/lorecomm",
+    "name": "newt/comments",
     "description": "a fork of laravelista/comments designed to work with lorekeeper framework by corowne",
     "keywords": ["laravel", "comments"],
     "license": "MIT",
@@ -23,13 +23,13 @@
     },
     "autoload": {
         "psr-4": {
-            "Laravelista\\Comments\\": "src/"
+            "Newt\\Comments\\": "src/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Laravelista\\Comments\\ServiceProvider"
+                "Newt\\Comments\\ServiceProvider"
             ]
         }
     }
