@@ -1,6 +1,6 @@
 {
-    "name": "laravelista/comments",
-    "description": "Comments for Laravel.",
+    "name": "newt/lorecomm",
+    "description": "a fork of laravelista/comments designed to work with lorekeeper framework by corowne",
     "keywords": ["laravel", "comments"],
     "license": "MIT",
     "authors": [
