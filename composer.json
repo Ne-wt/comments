@@ -1,6 +1,6 @@
 {
-    "name": "newt/comments",
-    "description": "a fork of laravelista/comments designed to work with lorekeeper framework by corowne",
+    "name": "laravelista/comments",
+    "description": "Comments for Laravel.",
     "keywords": ["laravel", "comments"],
     "license": "MIT",
     "authors": [
@@ -23,13 +23,13 @@
     },
     "autoload": {
         "psr-4": {
-            "Newt\\Comments\\": "src/"
+            "Laravelista\\Comments\\": "src/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Newt\\Comments\\ServiceProvider"
+                "Laravelista\\Comments\\ServiceProvider"
             ]
         }
     }
