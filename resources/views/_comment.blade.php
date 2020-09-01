@@ -8,12 +8,12 @@
 @endif
     <img class="mr-3" src="/images/avatars/{{ $comment->commenter->avatar }}" style="width:64px; height:64px; border-radius:50%;" alt="{{ $comment->commenter->name ?? $comment->guest_name }} Avatar">
     <div class="media-body">
-        <h5 class="mt-0 mb-1"><a href="https://sitename.com/user/{{ $comment->commenter->name }}">{{ $comment->commenter->name ?? $comment->guest_name }} </a><small class="text-muted">- {!! pretty_date($comment->created_at) !!}</small>&nbsp;&nbsp;&nbsp;&nbsp;<i class="fas fa-link" style="color: white;"></i></h5>
+        <h5 class="mt-0 mb-1"><a href="https://sitename.com/user/{{ $comment->commenter->name }}">{{ $comment->commenter->name ?? $comment->guest_name }} </a><small class="text-muted">- {!! ($comment->created_at) !!}</small>&nbsp;&nbsp;&nbsp;&nbsp;<i class="fas fa-link" style="color: white;"></i></h5>
         <div style="white-space: pre-wrap;">{!! $markdown->line($comment->comment) !!}</div>
     @if($comment->created_at == $comment->updated_at)
 
     @else
-    <span class="text-muted"><small><small>(Edited >> {!! pretty_date($comment->updated_at) !!})</span></small></small>
+    <span class="text-muted"><small><small>(Edited >> {!! ($comment->updated_at) !!})</span></small></small>
     @endif
         <div>
             @can('reply-to-comment', $comment)
