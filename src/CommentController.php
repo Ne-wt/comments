@@ -12,6 +12,11 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 
+use App\Models\Sales;
+use App\Models\User\User;
+
+use Notifications;
+
 class CommentController extends Controller implements CommentControllerInterface
 {
     public function __construct()
@@ -67,6 +72,25 @@ class CommentController extends Controller implements CommentControllerInterface
         $comment->comment = $request->message;
         $comment->approved = !Config::get('comments.approval_required');
         $comment->save();
+
+        $user_id = null;
+        $post = null;
+        $model_type = $comment->commentable_type;
+        switch($model_type) {
+            case 'App\Models\User\User':
+                $user_id = User::find($comment->commentable_id);
+                $post = 'Your profile';
+                break;
+            case 'App\Models\Sales':
+                $user_id = Sales::find($comment->commentable_id)->user; // User that has been commented on (or owner of sale post)
+                $post = 'your sales post'; // Simple message to show if it's 
+                break;
+            }
+
+        Notifications::create('COMMENT_MADE', $user_id, [
+            'comment_url' => 'yuh',
+            'post_type' => $post,
+        ]);
 
         return Redirect::to(URL::previous() . '#comment-' . $comment->getKey());
     }
