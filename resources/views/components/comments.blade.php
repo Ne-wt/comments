@@ -10,7 +10,7 @@
     <div class="alert alert-warning">There are no comments yet.</div>
 @endif
 
-<ul class="list-unstyled">
+<div class="d-flex mw-100 row mx-0" style="overflow:hidden;">
     @php
         $comments = $comments->sortByDesc('created_at');
 
@@ -35,7 +35,7 @@
                 $perPage
             );
 
-            $grouped_comments->withPath(request()->path());
+            $grouped_comments->withPath(request()->url());
         } else {
             $grouped_comments = $comments->groupBy('child_id');
         }
@@ -46,17 +46,19 @@
             @foreach($comments as $comment)
                 @include('comments::_comment', [
                     'comment' => $comment,
-                    'grouped_comments' => $grouped_comments
+                    'grouped_comments' => $grouped_comments,
+                    'limit' => 0
                 ])
             @endforeach
         @endif
     @endforeach
-</ul>
+</div>
 
 @isset ($perPage)
     {{ $grouped_comments->links() }}
 @endisset
 
+<br><br><br>
 @auth
     @include('comments::_form')
 @elseif(Config::get('comments.guest_commenting') == true)

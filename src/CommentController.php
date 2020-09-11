@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Validator;
 
 use App\Models\Sales;
 use App\Models\User\User;
+use App\Models\News;
 
 use Notifications;
 
@@ -73,23 +74,44 @@ class CommentController extends Controller implements CommentControllerInterface
         $comment->approved = !Config::get('comments.approval_required');
         $comment->save();
 
-        $user_id = null;
+        $recipient = null;
         $post = null;
         $model_type = $comment->commentable_type;
+        //getting user who commented
+        $sender = User::find($comment->commenter_id);
+
         switch($model_type) {
-            case 'App\Models\User\User':
-                $user_id = User::find($comment->commentable_id);
-                $post = 'Your profile';
+            case 'App\Models\User\UserProfile':
+                $recipient = User::find($comment->commentable_id);
+                $post = 'your profile';
+                $link = $recipient->url . '/#comment-' . $comment->getKey();
                 break;
             case 'App\Models\Sales':
-                $user_id = Sales::find($comment->commentable_id)->user; // User that has been commented on (or owner of sale post)
-                $post = 'your sales post'; // Simple message to show if it's 
+                $sale = Sales::find($comment->commentable_id);
+                $recipient = $sale->user; // User that has been commented on (or owner of sale post)
+                $post = 'your sales post'; // Simple message to show if it's profile/sales/news
+               // $link = url('/sales/') . '/' . $sale->slug . '#comment-' . $comment->getKey(); // Old Code
+                $link = $sale->url . '/#comment-' . $comment->getKey();
                 break;
-            }
+            case 'App\Models\News':
+                $news = News::find($comment->commentable_id);
+                $recipient = $news->user; // User that has been commented on (or owner of sale post)
+                $post = 'your news post'; // Simple message to show if it's profile/sales/news
+                $link = $news->url . '/#comment-' . $comment->getKey();
+                break;    
+            } 
 
-        Notifications::create('COMMENT_MADE', $user_id, [
-            'comment_url' => 'yuh',
+        // Plans:
+        // Add: News >>>>>
+        // Before replies: Finish Notifications (comment_url etc) >>>>
+        // Notifications for replies _______//////______
+        // Permalinking replies
+            
+        Notifications::create('COMMENT_MADE', $recipient, [
+            'comment_url' => $link,
             'post_type' => $post,
+            'sender' => $sender->name,
+            'sender_url' => $sender->url,
         ]);
 
         return Redirect::to(URL::previous() . '#comment-' . $comment->getKey());
@@ -150,6 +172,34 @@ class CommentController extends Controller implements CommentControllerInterface
         $reply->approved = !Config::get('comments.approval_required');
         $reply->save();
 
+            // url = url('comments/32')
+
+        $sender = User::find($reply->commenter_id);
+        $recipient = User::find($comment->commenter_id);
+
+        // if($sender == $recipient)
+
+        Notifications::create('COMMENT_REPLY', $recipient, [
+            'sender_url' => $sender->url,
+            'sender' => $sender->name,
+            'comment_url' => $comment->id,
+        ]);
+
         return Redirect::to(URL::previous() . '#comment-' . $reply->getKey());
+    }
+
+    /**
+     * Is featured for comments
+     */
+    public function feature($id) {
+        $comment = Comment::find($id);
+        if($comment->is_featured == 0) {
+            $comment->update(['is_featured' => 1]);
+        }
+        else {
+            $comment->update(['is_featured' => 0]);
+        }
+
+        return Redirect::to(URL::previous() . '#comment-' . $comment->getKey());
     }
 }

@@ -28,7 +28,7 @@ class Comment extends Model
      * @var array
      */
     protected $fillable = [
-        'comment', 'approved', 'guest_name', 'guest_email'
+        'comment', 'approved', 'guest_name', 'guest_email', 'is_featured'
     ];
 
     /**
@@ -82,4 +82,26 @@ class Comment extends Model
     {
         return $this->belongsTo(Config::get('comments.model'), 'child_id');
     }
+
+    /**
+     * Gets / Creates permalink for comments - allows user to go directly to comment
+     *
+     * @return string
+     */
+    public function getUrlAttribute()
+    {
+        return url('comment/' . $this->id);
+    }
+
+    /**
+     * Gets top comment
+     *
+     * @return string
+     */
+    public function getTopCommentAttribute()
+    {
+        if(!$this->parent) { return $this; }
+        else {return $this->parent->topComment;}
+    }
+
 }
