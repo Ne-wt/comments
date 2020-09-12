@@ -106,15 +106,16 @@ class CommentController extends Controller implements CommentControllerInterface
         // Before replies: Finish Notifications (comment_url etc) >>>>
         // Notifications for replies _______//////______
         // Permalinking replies
-            
-        Notifications::create('COMMENT_MADE', $recipient, [
-            'comment_url' => $link,
-            'post_type' => $post,
-            'sender' => $sender->name,
-            'sender_url' => $sender->url,
-        ]);
 
-        return Redirect::to(URL::previous() . '#comment-' . $comment->getKey());
+        if($recipient != $sender) {
+            Notifications::create('COMMENT_MADE', $recipient, [
+                'comment_url' => $link,
+                'post_type' => $post,
+                'sender' => $sender->name,
+                'sender_url' => $sender->url,
+            ]);
+          }
+          return Redirect::to(URL::previous() . '#comment-' . $comment->getKey());
     }
 
     /**
@@ -178,12 +179,13 @@ class CommentController extends Controller implements CommentControllerInterface
         $recipient = User::find($comment->commenter_id);
 
         // if($sender == $recipient)
-
-        Notifications::create('COMMENT_REPLY', $recipient, [
+        if($recipient != $sender) {
+            Notifications::create('COMMENT_REPLY', $recipient, [
             'sender_url' => $sender->url,
             'sender' => $sender->name,
             'comment_url' => $comment->id,
-        ]);
+            ]);
+        }
 
         return Redirect::to(URL::previous() . '#comment-' . $reply->getKey());
     }
