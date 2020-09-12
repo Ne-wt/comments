@@ -2,7 +2,7 @@
     if (isset($approved) and $approved == true) {
         $comments = $model->approvedComments;
     } else {
-        $comments = $model->comments;
+        $comments = $model->commentz;
     }
 @endphp
 

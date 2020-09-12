@@ -27,7 +27,7 @@ trait Commentable
     /**
      * Returns all comments for this model.
      */
-    public function comments()
+    public function commentz()
     {
         return $this->morphMany(Config::get('comments.model'), 'commentable');
     }
