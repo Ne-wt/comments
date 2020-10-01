@@ -18,9 +18,13 @@ trait Commentable
     protected static function bootCommentable()
     {
         static::deleted(function($commentable) {
-            foreach ($commentable->comments as $comment) {
-                $comment->delete();
+            if (Config::get('comments.soft_deletes') == true) {
+                Comment::where('commentable_type', get_class($commentable))->where('commentable_id', $commentable->id)->delete();
             }
+            else {
+                Comment::where('commentable_type', get_class($commentable))->where('commentable_id', $commentable->id)->forceDelete();
+            }
+            
         });
     }
 
